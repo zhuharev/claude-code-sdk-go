@@ -222,9 +222,16 @@ func (c *ClientImpl) Connect(ctx context.Context, _ ...StreamMessage) error {
 		c.transport = c.customTransport
 	} else {
 		// Create default subprocess transport directly (like Python SDK)
-		cliPath, err := cli.FindCLI()
-		if err != nil {
-			return fmt.Errorf("claude CLI not found: %w", err)
+		// Check if custom CLI path is provided in options
+		var cliPath string
+		var err error
+		if c.options != nil && c.options.CLIPath != nil {
+			cliPath = *c.options.CLIPath
+		} else {
+			cliPath, err = cli.FindCLI()
+			if err != nil {
+				return fmt.Errorf("claude CLI not found: %w", err)
+			}
 		}
 
 		// Create subprocess transport for streaming mode (closeStdin=false)

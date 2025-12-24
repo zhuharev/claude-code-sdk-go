@@ -160,9 +160,16 @@ func (qi *queryIterator) start() error {
 func createQueryTransport(prompt string, options *Options) (Transport, error) {
 	// Import here to avoid issues - actual imports are at the top of the file
 	// Find Claude CLI binary
-	cliPath, err := cli.FindCLI()
-	if err != nil {
-		return nil, err
+	// Check if custom CLI path is provided in options
+	var cliPath string
+	var err error
+	if options != nil && options.CLIPath != nil {
+		cliPath = *options.CLIPath
+	} else {
+		cliPath, err = cli.FindCLI()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Create subprocess transport with prompt as CLI argument
